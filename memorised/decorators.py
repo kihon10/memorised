@@ -43,7 +43,9 @@ class memorise(object):
             set the cached value to `value`
         """
 
-        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None, ttl=0, update=False, invalidate=False, value=None):
+        def __init__(self, mc=None, mc_servers=None, parent_keys=[], set=None,
+                     ttl=0, update=False, invalidate=False, value=None,
+                     check_value=None):
                 # Instance some default values, and customisations
                 self.parent_keys = parent_keys
                 self.set = set
@@ -51,6 +53,7 @@ class memorise(object):
                 self.update = update
                 self.invalidate = invalidate
                 self.value = value
+                self.check_value = check_value
 
                 if not mc:
                         if not mc_servers:
@@ -114,6 +117,9 @@ class memorise(object):
                                     output = self.value
                                 else:
                                     output = (not self.invalidate) and self.mc.get(key)
+                                    if output and self.check_value \
+                                        and not self.check_value(output,*args,**kwargs):
+                                        output = None
                                 exist = True
                                 if not output:
                                         exist = False
@@ -165,4 +171,5 @@ if __name__ == '__main__':
         # Run unit tests
         from memorised import tests
         tests.run()
+
 
